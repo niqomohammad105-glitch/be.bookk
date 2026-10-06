@@ -1,193 +1,143 @@
-let books = JSON.parse(localStorage.books || "null") || [
-  {
-    title:"Senja di Antara Kita",
-    author:"Rana Putri",
-    type:"Fiksi",
-    price:42000,
-    progress:68,
-    desc:"Fragmen tentang pulang dan percakapan yang tertunda."
-  },
-  {
-    title:"Atlas Ruang Sunyi",
-    author:"Damar Aksara",
-    type:"Esai",
-    price:35000,
-    progress:24,
-    desc:"Esai visual tentang menemukan jeda di kota yang berisik."
-  },
-  {
-    title:"Orbit yang Hilang",
-    author:"Nara Wisesa",
-    type:"Sci-fi",
-    price:50000,
-    progress:0,
-    desc:"Ekspedisi mencari rumah kedua di luar bumi."
-  }
-];
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>BukuRuang</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside>
+    <h2>◈ BukuRuang</h2>
+    <button onclick="page('home')">⌂ Beranda</button>
+    <button onclick="page('library')">▣ Koleksi</button>
+    <button onclick="page('creator')">✎ Kreator</button>
+    <button onclick="page('wallet')">▤ E-wallet</button>
+    <button onclick="page('vr')">◈ AR / VR</button>
+    <button onclick="theme()">☾ Tema</button>
+  </aside>
 
-let saldo = Number(localStorage.saldo || 248500);
-let aktif = null;
-let animasi = true;
+  <main>
+    <header>
+      <input id="search" placeholder="Cari buku..." oninput="render()">
+      <b id="saldo"></b>
+    </header>
 
-const rp = n => new Intl.NumberFormat("id-ID", {
-  style:"currency",
-  currency:"IDR",
-  maximumFractionDigits:0
-}).format(n);
+    <section id="home" class="page">
+      <div class="hero">
+        <small>RUANG BACA DIGITAL</small>
+        <h1>Baca lebih dalam.  
+<i>Cipta lebih berani.</i></h1>
+        <p>Temukan cerita dan karya baru.</p>
+        <button onclick="page('library')">Jelajahi buku →</button>
+      </div>
 
-function save() {
-  localStorage.books = JSON.stringify(books);
-  localStorage.saldo = saldo;
-}
+      <h2>Buku pilihan</h2>
+      <div id="books" class="grid"></div>
+    </section>
 
-function page(id) {
-  document.querySelectorAll(".page")
-    .forEach(x => x.classList.add("hide"));
+    <section id="library" class="page hide">
+      <h1>Koleksi buku</h1>
+      <div id="libraryBooks" class="grid"></div>
+    </section>
 
-  document.getElementById(id).classList.remove("hide");
-  render();
-}
+    <section id="creator" class="page hide">
+      <h1>Studio kreator</h1>
 
-function theme() {
-  document.body.classList.toggle("dark");
-  localStorage.dark = document.body.classList.contains("dark");
-}
+      <div class="card">
+        <input id="title" placeholder="Judul buku">
+        <input id="author" placeholder="Nama penulis">
+        <input id="price" type="number" placeholder="Harga buku">
+        <textarea id="desc" placeholder="Deskripsi buku"></textarea>
+        <input id="file" type="file" accept=".pdf,.epub">
+        <button onclick="upload()">Upload karya</button>
+      </div>
 
-if (localStorage.dark === "true") {
-  document.body.classList.add("dark");
-}
+      <h2>Scan buku menjadi PDF</h2>
 
-function render() {
-  document.getElementById("saldo").textContent = rp(saldo);
-  document.getElementById("balance").textContent = rp(saldo);
+      <div class="card">
+        <input id="scan" type="file" accept="image/*" multiple>
+        <button onclick="makePDF()">Buat PDF</button>
+        <p id="scanInfo"></p>
+      </div>
+    </section>
 
-  const key = (document.getElementById("search").value || "")
-    .toLowerCase();
+    <section id="wallet" class="page hide">
+      <h1>E-wallet</h1>
 
-  const list = books.filter(b =>
-    `${b.title} ${b.author} ${b.type}`
-      .toLowerCase()
-      .includes(key)
-  );
+      <div class="balance">
+        <small>Saldo tersedia</small>
+        <strong id="balance"></strong>
+      </div>
 
-  const html = list.map(book => {
-    const index = books.indexOf(book);
+      <div class="card">
+        <input id="topup" type="number" placeholder="Jumlah top up">
+        <button onclick="topUp()">Tambah saldo</button>
+      </div>
+    </section>
 
-    return `
-      <article class="book" onclick="readBook(${index})">
-        <div class="cover">${book.title[0]}</div>
-        <small>${book.type}</small>
-        <h3>${book.title}</h3>
-        <p>${book.author}</p>
-        <p>${book.progress ? book.progress + "% dibaca" : rp(book.price)}</p>
-        <div class="progress">
-          <i style="width:${book.progress}%"></i>
+    <section id="vr" class="page hide">
+      <h1>Ruang imersif</h1>
+      <p>Animasi 3D AR dan VR.</p>
+
+      <div class="scene">
+        <div class="cube">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
         </div>
-      </article>
-    `;
-  }).join("");
 
-  document.getElementById("books").innerHTML = html;
-  document.getElementById("libraryBooks").innerHTML = html;
-}
+        <b>BUKURUANG  
+<small>SPATIAL MODE</small></b>
+      </div>
 
-function readBook(index) {
-  aktif = books[index];
+      <button onclick="motion()">Aktif / nonaktif animasi</button>
+    </section>
+  </main>
 
-  document.getElementById("readerTitle").textContent = aktif.title;
-  document.getElementById("readerType").textContent = aktif.type;
-  document.getElementById("readerDesc").textContent = aktif.desc;
-  document.getElementById("progress").value = aktif.progress;
-  document.getElementById("progressText").textContent =
-    aktif.progress + "%";
+  <div id="reader" class="modal hide">
+    <article>
+      <button class="close" onclick="closeReader()">×</button>
 
-  document.getElementById("reader").classList.remove("hide");
-}
+      <small id="readerType"></small>
+      <h1 id="readerTitle"></h1>
+      <p id="readerDesc"></p>
 
-function closeReader() {
-  document.getElementById("reader").classList.add("hide");
-}
+      <label>
+        Progres:
+        <b id="progressText"></b>
+      </label>
 
-function saveProgress(value) {
-  if (!aktif) return;
+      <input id="progress" type="range" min="0" max="100"
+             oninput="saveProgress(this.value)">
 
-  aktif.progress = Number(value);
-  document.getElementById("progressText").textContent = value + "%";
-  save();
-}
+      <hr>
 
-function upload() {
-  const title = document.getElementById("title").value || "Karya baru";
-  const author = document.getElementById("author").value || "Kreator";
-  const price = Number(document.getElementById("price").value || 0);
-  const desc = document.getElementById("desc").value || "Karya digital baru.";
+      <p class="text">
+        Kota itu selalu punya cara untuk menyimpan suara.
+        Di antara lampu yang padam dan kedai yang belum tutup,
+        ada percakapan yang menunggu untuk diselesaikan.
+      </p>
 
-  books.unshift({
-    title,
-    author,
-    price,
-    desc,
-    type:"Karya kreator",
-    progress:0
-  });
+      <hr>
 
-  save();
-  alert("Karya berhasil disimpan.");
-  page("library");
-}
+      <h2>Ulasan pembaca</h2>
 
-function topUp() {
-  const value = Number(document.getElementById("topup").value);
+      <select id="rating">
+        <option value="5">★★★★★ Sangat bagus</option>
+        <option value="4">★★★★☆ Bagus</option>
+        <option value="3">★★★☆☆ Cukup</option>
+        <option value="2">★★☆☆☆ Kurang</option>
+        <option value="1">★☆☆☆☆ Buruk</option>
+      </select>
 
-  if (value < 10000) {
-    alert("Minimal top up Rp10.000");
-    return;
-  }
+      <textarea id="comment" placeholder="Tulis komentar..."></textarea>
+      <button onclick="addReview()">Kirim ulasan</button>
 
-  saldo += value;
-  save();
-  alert("Saldo berhasil ditambahkan.");
-  render();
-}
+      <div id="reviewsList"></div>
+    </article>
+  </div>
 
-function pdf() {
-  const files = document.getElementById("scan").files;
-
-  if (!files.length) {
-    alert("Pilih gambar halaman terlebih dahulu.");
-    return;
-  }
-
-  document.getElementById("scanInfo").textContent =
-    `${files.length} halaman siap diproses.`;
-
-  const win = window.open("");
-
-  win.document.write(`
-    <title>BukuRuang PDF</title>
-    <style>
-      img {
-        display:block;
-        width:100%;
-        page-break-after:always;
-      }
-    </style>
-  `);
-
-  [...files].forEach(file => {
-    const img = win.document.createElement("img");
-    img.src = URL.createObjectURL(file);
-    win.document.body.appendChild(img);
-  });
-
-  win.document.write("<script>onload=()=>print()<\/script>");
-}
-
-function motion() {
-  animasi = !animasi;
-
-  document.querySelector(".cube").style.animationPlayState =
-    animasi ? "running" : "paused";
-}
-
-render();
+  <!-- JavaScript harus dipanggil, bukan ditempel sebagai teks di HTML -->
+  <script src="app.js"></script>
+</body>
+</html>
