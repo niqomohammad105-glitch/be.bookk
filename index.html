@@ -1,143 +1,124 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>BukuRuang</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BukuRuang</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <aside>
-    <h2>◈ BukuRuang</h2>
-    <button onclick="page('home')">⌂ Beranda</button>
-    <button onclick="page('library')">▣ Koleksi</button>
-    <button onclick="page('creator')">✎ Kreator</button>
-    <button onclick="page('wallet')">▤ E-wallet</button>
-    <button onclick="page('vr')">◈ AR / VR</button>
-    <button onclick="theme()">☾ Tema</button>
-  </aside>
 
-  <main>
-    <header>
-      <input id="search" placeholder="Cari buku..." oninput="render()">
-      <b id="saldo"></b>
-    </header>
-
-    <section id="home" class="page">
-      <div class="hero">
-        <small>RUANG BACA DIGITAL</small>
-        <h1>Baca lebih dalam.  
-<i>Cipta lebih berani.</i></h1>
-        <p>Temukan cerita dan karya baru.</p>
-        <button onclick="page('library')">Jelajahi buku →</button>
-      </div>
-
-      <h2>Buku pilihan</h2>
-      <div id="books" class="grid"></div>
-    </section>
-
-    <section id="library" class="page hide">
-      <h1>Koleksi buku</h1>
-      <div id="libraryBooks" class="grid"></div>
-    </section>
-
-    <section id="creator" class="page hide">
-      <h1>Studio kreator</h1>
-
-      <div class="card">
-        <input id="title" placeholder="Judul buku">
-        <input id="author" placeholder="Nama penulis">
-        <input id="price" type="number" placeholder="Harga buku">
-        <textarea id="desc" placeholder="Deskripsi buku"></textarea>
-        <input id="file" type="file" accept=".pdf,.epub">
-        <button onclick="upload()">Upload karya</button>
-      </div>
-
-      <h2>Scan buku menjadi PDF</h2>
-
-      <div class="card">
-        <input id="scan" type="file" accept="image/*" multiple>
-        <button onclick="makePDF()">Buat PDF</button>
-        <p id="scanInfo"></p>
-      </div>
-    </section>
-
-    <section id="wallet" class="page hide">
-      <h1>E-wallet</h1>
-
-      <div class="balance">
-        <small>Saldo tersedia</small>
-        <strong id="balance"></strong>
-      </div>
-
-      <div class="card">
-        <input id="topup" type="number" placeholder="Jumlah top up">
-        <button onclick="topUp()">Tambah saldo</button>
-      </div>
-    </section>
-
-    <section id="vr" class="page hide">
-      <h1>Ruang imersif</h1>
-      <p>Animasi 3D AR dan VR.</p>
-
-      <div class="scene">
-        <div class="cube">
-          <span></span><span></span><span></span>
-          <span></span><span></span><span></span>
-        </div>
-
-        <b>BUKURUANG  
-<small>SPATIAL MODE</small></b>
-      </div>
-
-      <button onclick="motion()">Aktif / nonaktif animasi</button>
-    </section>
-  </main>
-
-  <div id="reader" class="modal hide">
-    <article>
-      <button class="close" onclick="closeReader()">×</button>
-
-      <small id="readerType"></small>
-      <h1 id="readerTitle"></h1>
-      <p id="readerDesc"></p>
-
-      <label>
-        Progres:
-        <b id="progressText"></b>
-      </label>
-
-      <input id="progress" type="range" min="0" max="100"
-             oninput="saveProgress(this.value)">
-
-      <hr>
-
-      <p class="text">
-        Kota itu selalu punya cara untuk menyimpan suara.
-        Di antara lampu yang padam dan kedai yang belum tutup,
-        ada percakapan yang menunggu untuk diselesaikan.
-      </p>
-
-      <hr>
-
-      <h2>Ulasan pembaca</h2>
-
-      <select id="rating">
-        <option value="5">★★★★★ Sangat bagus</option>
-        <option value="4">★★★★☆ Bagus</option>
-        <option value="3">★★★☆☆ Cukup</option>
-        <option value="2">★★☆☆☆ Kurang</option>
-        <option value="1">★☆☆☆☆ Buruk</option>
-      </select>
-
-      <textarea id="comment" placeholder="Tulis komentar..."></textarea>
-      <button onclick="addReview()">Kirim ulasan</button>
-
-      <div id="reviewsList"></div>
-    </article>
+<div class="space-bg">
+  <div class="cube">
+    <i></i><i></i><i></i><i></i><i></i><i></i>
   </div>
+  <div class="orb"></div>
+  <div class="grid3d"></div>
+</div>
 
-  <!-- JavaScript harus dipanggil, bukan ditempel sebagai teks di HTML -->
-  <script src="app.js"></script>
+<aside>
+  <h2>◈ BukuRuang</h2>
+  <button onclick="page('home')">⌂ Beranda</button>
+  <button onclick="page('library')">▣ Koleksi</button>
+  <button onclick="page('creator')">✎ Kreator</button>
+  <button onclick="page('wallet')">▤ E-wallet</button>
+  <button onclick="theme()">☾ Tema</button>
+</aside>
+
+<main>
+  <header>
+    <input id="search" placeholder="Cari buku..." oninput="render()">
+    <b id="saldo"></b>
+  </header>
+
+  <section id="home" class="page">
+    <div class="hero">
+      <small>RUANG BACA DIGITAL</small>
+      <h1>Baca lebih dalam.  
+<i>Cipta lebih berani.</i></h1>
+      <p>Temukan cerita dan karya baru.</p>
+      <button onclick="page('library')">Jelajahi buku →</button>
+    </div>
+    <h2>Buku pilihan</h2>
+    <div id="books" class="grid"></div>
+  </section>
+
+  <section id="library" class="page hide">
+    <h1>Koleksi buku</h1>
+    <div id="libraryBooks" class="grid"></div>
+  </section>
+
+  <section id="creator" class="page hide">
+    <h1>Studio kreator</h1>
+    <div class="card">
+      <input id="title" placeholder="Judul buku">
+      <input id="author" placeholder="Nama penulis">
+      <input id="price" type="number" placeholder="Harga buku">
+      <textarea id="desc" placeholder="Deskripsi buku"></textarea>
+      <input id="file" type="file" accept=".pdf,.epub">
+      <button onclick="upload()">Upload karya</button>
+    </div>
+
+    <h2>Scan buku menjadi PDF</h2>
+    <div class="card">
+      <input id="scan" type="file" accept="image/*" multiple>
+      <button onclick="makePDF()">Buat PDF</button>
+      <p id="scanInfo"></p>
+    </div>
+  </section>
+
+  <section id="wallet" class="page hide">
+    <h1>E-wallet</h1>
+
+    <div class="balance">
+      <small>Saldo tersedia</small>
+      <strong id="balance"></strong>
+    </div>
+
+    <div class="card">
+      <input id="topup" type="number" placeholder="Jumlah top up">
+      <button onclick="topUp()">Tambah saldo</button>
+    </div>
+  </section>
+</main>
+
+<div id="reader" class="modal hide">
+  <article>
+    <button class="close" onclick="closeReader()">×</button>
+
+    <small id="readerType"></small>
+    <h1 id="readerTitle"></h1>
+    <p id="readerDesc"></p>
+
+    <label>Progres: <b id="progressText"></b></label>
+    <input id="progress" type="range" min="0" max="100"
+           oninput="saveProgress(this.value)">
+
+    <hr>
+
+    <p class="text">
+      Kota itu selalu punya cara untuk menyimpan suara.
+      Di antara lampu yang padam dan kedai yang belum tutup,
+      ada percakapan yang menunggu untuk diselesaikan.
+    </p>
+
+    <hr>
+
+    <h2>Ulasan pembaca</h2>
+    <select id="rating">
+      <option value="5">★★★★★ Sangat bagus</option>
+      <option value="4">★★★★☆ Bagus</option>
+      <option value="3">★★★☆☆ Cukup</option>
+      <option value="2">★★☆☆☆ Kurang</option>
+      <option value="1">★☆☆☆☆ Buruk</option>
+    </select>
+
+    <textarea id="comment" placeholder="Tulis komentar..."></textarea>
+    <button onclick="addReview()">Kirim ulasan</button>
+    <div id="reviewsList"></div>
+  </article>
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>
