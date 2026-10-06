@@ -1,4 +1,4 @@
-let books = JSON.parse(localStorage.books || "null") || [
+let books=JSON.parse(localStorage.books||"null")||[
   {
     title:"Senja di Antara Kita",
     author:"Rana Putri",
@@ -25,121 +25,119 @@ let books = JSON.parse(localStorage.books || "null") || [
   }
 ];
 
-let saldo = Number(localStorage.saldo || 248500);
-let reviews = JSON.parse(localStorage.reviews || "{}");
-let aktif = null;
-let animasi = true;
+let saldo=Number(localStorage.saldo||248500);
+let reviews=JSON.parse(localStorage.reviews||"{}");
+let aktif=null;
+let animasi=true;
 
-const rp = n => new Intl.NumberFormat("id-ID", {
+const rp=n=>new Intl.NumberFormat("id-ID",{
   style:"currency",
   currency:"IDR",
   maximumFractionDigits:0
 }).format(n);
 
-function save() {
-  localStorage.books = JSON.stringify(books);
-  localStorage.saldo = saldo;
-  localStorage.reviews = JSON.stringify(reviews);
+function safe(value){
+  return String(value).replace(/[&<>"']/g,x=>({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#039;"
+  }[x]));
 }
 
-function page(id) {
+function save(){
+  localStorage.books=JSON.stringify(books);
+  localStorage.saldo=saldo;
+  localStorage.reviews=JSON.stringify(reviews);
+}
+
+function page(id){
   document.querySelectorAll(".page")
-    .forEach(x => x.classList.add("hide"));
+    .forEach(x=>x.classList.add("hide"));
 
   document.getElementById(id).classList.remove("hide");
   render();
 }
 
-function theme() {
+function theme(){
   document.body.classList.toggle("dark");
-  localStorage.dark = document.body.classList.contains("dark");
+  localStorage.dark=document.body.classList.contains("dark");
 }
 
-if (localStorage.dark === "true") {
+if(localStorage.dark==="true"){
   document.body.classList.add("dark");
 }
 
-function render() {
-  const saldoEl = document.getElementById("saldo");
-  const balanceEl = document.getElementById("balance");
-  const searchEl = document.getElementById("search");
+function render(){
+  const search=(document.getElementById("search").value||"")
+    .toLowerCase();
 
-  if (saldoEl) saldoEl.textContent = rp(saldo);
-  if (balanceEl) balanceEl.textContent = rp(saldo);
+  document.getElementById("saldo").textContent=rp(saldo);
+  document.getElementById("balance").textContent=rp(saldo);
 
-  const key = (searchEl?.value || "").toLowerCase();
-
-  const list = books.filter(book =>
-    `${book.title} ${book.author} ${book.type}`
+  const list=books.filter(b=>
+    `${b.title} ${b.author} ${b.type}`
       .toLowerCase()
-      .includes(key)
+      .includes(search)
   );
 
-  const html = list.map(book => {
-    const index = books.indexOf(book);
+  const html=list.map(b=>{
+    const index=books.indexOf(b);
 
     return `
       <article class="book" onclick="readBook(${index})">
-        <div class="cover">${safe(book.title[0])}</div>
-        <small>${safe(book.type)}</small>
-        <h3>${safe(book.title)}</h3>
-        <p>${safe(book.author)}</p>
-        <p>${book.progress ? book.progress + "% dibaca" : rp(book.price)}</p>
+        <div class="cover">${safe(b.title[0])}</div>
+        <small>${safe(b.type)}</small>
+        <h3>${safe(b.title)}</h3>
+        <p>${safe(b.author)}</p>
+        <p>${b.progress?b.progress+"% dibaca":rp(b.price)}</p>
         <div class="progress">
-          <i style="width:${book.progress}%"></i>
+          <i style="width:${b.progress}%"></i>
         </div>
       </article>
     `;
   }).join("");
 
-  const booksEl = document.getElementById("books");
-  const libraryEl = document.getElementById("libraryBooks");
-
-  if (booksEl) booksEl.innerHTML = html;
-  if (libraryEl) libraryEl.innerHTML = html;
+  document.getElementById("books").innerHTML=html;
+  document.getElementById("libraryBooks").innerHTML=html;
 }
 
-function readBook(index) {
-  aktif = books[index];
+function readBook(index){
+  aktif=books[index];
 
-  document.getElementById("readerTitle").textContent = aktif.title;
-  document.getElementById("readerType").textContent = aktif.type;
-  document.getElementById("readerDesc").textContent = aktif.desc;
-  document.getElementById("progress").value = aktif.progress;
-  document.getElementById("progressText").textContent =
-    aktif.progress + "%";
+  document.getElementById("readerTitle").textContent=aktif.title;
+  document.getElementById("readerType").textContent=aktif.type;
+  document.getElementById("readerDesc").textContent=aktif.desc;
+  document.getElementById("progress").value=aktif.progress;
+  document.getElementById("progressText").textContent=
+    aktif.progress+"%";
 
   renderReviews();
-
   document.getElementById("reader").classList.remove("hide");
 }
 
-function closeReader() {
+function closeReader(){
   document.getElementById("reader").classList.add("hide");
 }
 
-function saveProgress(value) {
-  if (!aktif) return;
+function saveProgress(value){
+  if(!aktif)return;
 
-  aktif.progress = Number(value);
-  document.getElementById("progressText").textContent =
-    value + "%";
-
+  aktif.progress=Number(value);
+  document.getElementById("progressText").textContent=value+"%";
   save();
   render();
 }
 
-function upload() {
-  const title = document.getElementById("title").value || "Karya baru";
-  const author = document.getElementById("author").value || "Kreator";
-  const price = Number(document.getElementById("price").value || 0);
-  const desc = document.getElementById("desc").value || "Karya digital baru.";
+function upload(){
+  const title=document.getElementById("title").value||"Karya baru";
+  const author=document.getElementById("author").value||"Kreator";
+  const price=Number(document.getElementById("price").value||0);
+  const desc=document.getElementById("desc").value||"Karya digital baru.";
 
   books.unshift({
-    title,
-    author,
-    price,
-    desc,
+    title,author,price,desc,
     type:"Karya kreator",
     progress:0
   });
@@ -149,37 +147,36 @@ function upload() {
   page("library");
 }
 
-function topUp() {
-  const value = Number(document.getElementById("topup").value);
+function topUp(){
+  const value=Number(document.getElementById("topup").value);
 
-  if (!value || value < 10000) {
+  if(value<10000){
     alert("Minimal top up Rp10.000.");
     return;
   }
 
-  saldo += value;
+  saldo+=value;
   save();
-
-  document.getElementById("topup").value = "";
+  document.getElementById("topup").value="";
   alert("Saldo berhasil ditambahkan.");
   render();
 }
 
-function pdf() {
-  const files = document.getElementById("scan").files;
+function makePDF(){
+  const files=document.getElementById("scan").files;
 
-  if (!files.length) {
+  if(!files.length){
     alert("Pilih gambar halaman terlebih dahulu.");
     return;
   }
 
-  document.getElementById("scanInfo").textContent =
+  document.getElementById("scanInfo").textContent=
     `${files.length} halaman siap diproses.`;
 
-  const win = window.open("");
+  const win=window.open("");
 
-  if (!win) {
-    alert("Izinkan pop-up browser terlebih dahulu.");
+  if(!win){
+    alert("Izinkan pop-up browser.");
     return;
   }
 
@@ -189,11 +186,11 @@ function pdf() {
     <head>
       <title>BukuRuang PDF</title>
       <style>
-        body { margin:0; }
-        img {
+        body{margin:0}
+        img{
           display:block;
           width:100%;
-          page-break-after:always;
+          page-break-after:always
         }
       </style>
     </head>
@@ -201,54 +198,38 @@ function pdf() {
     </html>
   `);
 
-  const body = win.document.body;
-
-  [...files].forEach(file => {
-    const image = win.document.createElement("img");
-    image.src = URL.createObjectURL(file);
-    body.appendChild(image);
+  [...files].forEach(file=>{
+    const image=win.document.createElement("img");
+    image.src=URL.createObjectURL(file);
+    win.document.body.appendChild(image);
   });
 
   win.document.close();
-  win.onload = () => win.print();
+  win.onload=()=>win.print();
 }
 
-function motion() {
-  animasi = !animasi;
+function motion(){
+  animasi=!animasi;
 
-  document.querySelector(".cube").style.animationPlayState =
-    animasi ? "running" : "paused";
+  document.querySelector(".cube").style.animationPlayState=
+    animasi?"running":"paused";
 }
 
-function safe(value) {
-  return String(value).replace(/[&<>"']/g, char => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#039;"
-  }[char]));
-}
+function renderReviews(){
+  if(!aktif)return;
 
-function renderReviews() {
-  if (!aktif) return;
+  const list=reviews[aktif.title]||[];
+  const box=document.getElementById("reviewsList");
 
-  const list = reviews[aktif.title] || [];
-  const box = document.getElementById("reviewsList");
-
-  if (!list.length) {
-    box.innerHTML = `
-      <p class="empty-review">
-        Belum ada ulasan. Jadilah pembaca pertama.
-      </p>
-    `;
+  if(!list.length){
+    box.innerHTML='<p class="empty">Belum ada ulasan.</p>';
     return;
   }
 
-  box.innerHTML = list.map(item => `
+  box.innerHTML=list.map(item=>`
     <div class="review">
       <strong>
-        ${"★".repeat(item.rating)}${"☆".repeat(5 - item.rating)}
+        ${"★".repeat(item.rating)}${"☆".repeat(5-item.rating)}
       </strong>
       <p>${safe(item.comment)}</p>
       <small>${safe(item.date)}</small>
@@ -256,19 +237,19 @@ function renderReviews() {
   `).join("");
 }
 
-function addReview() {
-  if (!aktif) return;
+function addReview(){
+  if(!aktif)return;
 
-  const rating = Number(document.getElementById("rating").value);
-  const comment = document.getElementById("comment").value.trim();
+  const rating=Number(document.getElementById("rating").value);
+  const comment=document.getElementById("comment").value.trim();
 
-  if (!comment) {
+  if(!comment){
     alert("Tulis komentar terlebih dahulu.");
     return;
   }
 
-  if (!reviews[aktif.title]) {
-    reviews[aktif.title] = [];
+  if(!reviews[aktif.title]){
+    reviews[aktif.title]=[];
   }
 
   reviews[aktif.title].unshift({
@@ -277,8 +258,7 @@ function addReview() {
     date:new Date().toLocaleDateString("id-ID")
   });
 
-  document.getElementById("comment").value = "";
-
+  document.getElementById("comment").value="";
   save();
   renderReviews();
   alert("Ulasan berhasil dikirim.");
