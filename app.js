@@ -1,26 +1,17 @@
 let books=JSON.parse(localStorage.books||"null")||[
   {
-    title:"Senja di Antara Kita",
-    author:"Rana Putri",
-    type:"Fiksi",
-    price:42000,
-    progress:68,
+    title:"Senja di Antara Kita",author:"Rana Putri",type:"Fiksi",
+    price:42000,progress:68,
     desc:"Fragmen tentang pulang dan percakapan yang tertunda."
   },
   {
-    title:"Atlas Ruang Sunyi",
-    author:"Damar Aksara",
-    type:"Esai",
-    price:35000,
-    progress:24,
+    title:"Atlas Ruang Sunyi",author:"Damar Aksara",type:"Esai",
+    price:35000,progress:24,
     desc:"Esai visual tentang menemukan jeda di kota yang berisik."
   },
   {
-    title:"Orbit yang Hilang",
-    author:"Nara Wisesa",
-    type:"Sci-fi",
-    price:50000,
-    progress:0,
+    title:"Orbit yang Hilang",author:"Nara Wisesa",type:"Sci-fi",
+    price:50000,progress:0,
     desc:"Ekspedisi mencari rumah kedua di luar bumi."
   }
 ];
@@ -28,23 +19,15 @@ let books=JSON.parse(localStorage.books||"null")||[
 let saldo=Number(localStorage.saldo||248500);
 let reviews=JSON.parse(localStorage.reviews||"{}");
 let aktif=null;
-let animasi=true;
 
 const rp=n=>new Intl.NumberFormat("id-ID",{
-  style:"currency",
-  currency:"IDR",
-  maximumFractionDigits:0
+  style:"currency",currency:"IDR",maximumFractionDigits:0
 }).format(n);
 
-function safe(value){
-  return String(value).replace(/[&<>"']/g,x=>({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#039;"
-  }[x]));
-}
+const safe=v=>String(v).replace(/[&<>"']/g,x=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",
+  '"':"&quot;","'":"&#039;"
+}[x]));
 
 function save(){
   localStorage.books=JSON.stringify(books);
@@ -65,9 +48,7 @@ function theme(){
   localStorage.dark=document.body.classList.contains("dark");
 }
 
-if(localStorage.dark==="true"){
-  document.body.classList.add("dark");
-}
+if(localStorage.dark==="true")document.body.classList.add("dark");
 
 function render(){
   const search=(document.getElementById("search").value||"")
@@ -78,15 +59,14 @@ function render(){
 
   const list=books.filter(b=>
     `${b.title} ${b.author} ${b.type}`
-      .toLowerCase()
-      .includes(search)
+    .toLowerCase().includes(search)
   );
 
   const html=list.map(b=>{
-    const index=books.indexOf(b);
+    const i=books.indexOf(b);
 
     return `
-      <article class="book" onclick="readBook(${index})">
+      <article class="book" onclick="readBook(${i})">
         <div class="cover">${safe(b.title[0])}</div>
         <small>${safe(b.type)}</small>
         <h3>${safe(b.title)}</h3>
@@ -103,41 +83,38 @@ function render(){
   document.getElementById("libraryBooks").innerHTML=html;
 }
 
-function readBook(index){
-  aktif=books[index];
+function readBook(i){
+  aktif=books[i];
 
-  document.getElementById("readerTitle").textContent=aktif.title;
-  document.getElementById("readerType").textContent=aktif.type;
-  document.getElementById("readerDesc").textContent=aktif.desc;
-  document.getElementById("progress").value=aktif.progress;
-  document.getElementById("progressText").textContent=
-    aktif.progress+"%";
+  readerTitle.textContent=aktif.title;
+  readerType.textContent=aktif.type;
+  readerDesc.textContent=aktif.desc;
+  progress.value=aktif.progress;
+  progressText.textContent=aktif.progress+"%";
 
   renderReviews();
-  document.getElementById("reader").classList.remove("hide");
+  reader.classList.remove("hide");
 }
 
 function closeReader(){
-  document.getElementById("reader").classList.add("hide");
+  reader.classList.add("hide");
 }
 
 function saveProgress(value){
   if(!aktif)return;
 
   aktif.progress=Number(value);
-  document.getElementById("progressText").textContent=value+"%";
+  progressText.textContent=value+"%";
   save();
   render();
 }
 
 function upload(){
-  const title=document.getElementById("title").value||"Karya baru";
-  const author=document.getElementById("author").value||"Kreator";
-  const price=Number(document.getElementById("price").value||0);
-  const desc=document.getElementById("desc").value||"Karya digital baru.";
-
   books.unshift({
-    title,author,price,desc,
+    title:title.value||"Karya baru",
+    author:author.value||"Kreator",
+    price:Number(price.value||0),
+    desc:desc.value||"Karya digital baru.",
     type:"Karya kreator",
     progress:0
   });
@@ -148,7 +125,7 @@ function upload(){
 }
 
 function topUp(){
-  const value=Number(document.getElementById("topup").value);
+  const value=Number(topup.value);
 
   if(value<10000){
     alert("Minimal top up Rp10.000.");
@@ -156,22 +133,21 @@ function topUp(){
   }
 
   saldo+=value;
+  topup.value="";
   save();
-  document.getElementById("topup").value="";
   alert("Saldo berhasil ditambahkan.");
   render();
 }
 
 function makePDF(){
-  const files=document.getElementById("scan").files;
+  const files=scan.files;
 
   if(!files.length){
     alert("Pilih gambar halaman terlebih dahulu.");
     return;
   }
 
-  document.getElementById("scanInfo").textContent=
-    `${files.length} halaman siap diproses.`;
+  scanInfo.textContent=`${files.length} halaman siap diproses.`;
 
   const win=window.open("");
 
@@ -181,21 +157,11 @@ function makePDF(){
   }
 
   win.document.write(`
-    <!doctype html>
-    <html>
-    <head>
-      <title>BukuRuang PDF</title>
-      <style>
-        body{margin:0}
-        img{
-          display:block;
-          width:100%;
-          page-break-after:always
-        }
-      </style>
-    </head>
-    <body></body>
-    </html>
+    <title>BukuRuang PDF</title>
+    <style>
+      body{margin:0}
+      img{display:block;width:100%;page-break-after:always}
+    </style>
   `);
 
   [...files].forEach(file=>{
@@ -208,31 +174,19 @@ function makePDF(){
   win.onload=()=>win.print();
 }
 
-function motion(){
-  animasi=!animasi;
-
-  document.querySelector(".cube").style.animationPlayState=
-    animasi?"running":"paused";
-}
-
 function renderReviews(){
-  if(!aktif)return;
-
   const list=reviews[aktif.title]||[];
-  const box=document.getElementById("reviewsList");
 
   if(!list.length){
-    box.innerHTML='<p class="empty">Belum ada ulasan.</p>';
+    reviewsList.innerHTML='<p class="empty">Belum ada ulasan.</p>';
     return;
   }
 
-  box.innerHTML=list.map(item=>`
+  reviewsList.innerHTML=list.map(x=>`
     <div class="review">
-      <strong>
-        ${"★".repeat(item.rating)}${"☆".repeat(5-item.rating)}
-      </strong>
-      <p>${safe(item.comment)}</p>
-      <small>${safe(item.date)}</small>
+      <strong>${"★".repeat(x.rating)}${"☆".repeat(5-x.rating)}</strong>
+      <p>${safe(x.comment)}</p>
+      <small>${safe(x.date)}</small>
     </div>
   `).join("");
 }
@@ -240,17 +194,15 @@ function renderReviews(){
 function addReview(){
   if(!aktif)return;
 
-  const rating=Number(document.getElementById("rating").value);
   const comment=document.getElementById("comment").value.trim();
+  const rating=Number(document.getElementById("rating").value);
 
   if(!comment){
     alert("Tulis komentar terlebih dahulu.");
     return;
   }
 
-  if(!reviews[aktif.title]){
-    reviews[aktif.title]=[];
-  }
+  if(!reviews[aktif.title])reviews[aktif.title]=[];
 
   reviews[aktif.title].unshift({
     rating,
@@ -258,6 +210,7 @@ function addReview(){
     date:new Date().toLocaleDateString("id-ID")
   });
 
+  comment.value="";
   document.getElementById("comment").value="";
   save();
   renderReviews();
