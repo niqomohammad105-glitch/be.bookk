@@ -1,124 +1,413 @@
-<!doctype html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BukuRuang</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
+ <!DOCTYPE html>
+  <html lang="id">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aksara • Zen Reading & Creator Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=J
+  etBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body class="theme-light font-serif">
 
-<div class="space-bg">
-  <div class="cube">
-    <i></i><i></i><i></i><i></i><i></i><i></i>
-  </div>
-  <div class="orb"></div>
-  <div class="grid3d"></div>
-</div>
+    <!-- ==================== HEADER UTAMA ==================== -->
+    <header id="main-header" class="site-header">
+      <div class="header-container">
+        <div class="brand" id="btn-home">
+          <span class="brand-mark">¶</span>
+          <span class="brand-name">Aksara</span>
+        </div>
 
-<aside>
-  <h2>◈ BukuRuang</h2>
-  <button onclick="page('home')">⌂ Beranda</button>
-  <button onclick="page('library')">▣ Koleksi</button>
-  <button onclick="page('creator')">✎ Kreator</button>
-  <button onclick="page('wallet')">▤ E-wallet</button>
-  <button onclick="theme()">☾ Tema</button>
-</aside>
+        <nav class="nav-links">
+          <button class="nav-btn active" data-tab="catalog">Katalog</button>
+          <button class="nav-btn" data-tab="creator">Studio Kreator & OCR</button>
+          <button class="nav-btn" data-tab="rewards">
+            Misi Iklan
+            <span class="badge-pill" id="ad-badge">0/10</span>
+          </button>
+        </nav>
 
-<main>
-  <header>
-    <input id="search" placeholder="Cari buku..." oninput="render()">
-    <b id="saldo"></b>
-  </header>
+        <div class="header-actions">
+          <div id="premium-status-indicator" class="status-pill status-free">
+            Gratis
+          </div>
+          <button id="btn-open-upgrade" class="btn btn-sm btn-primary">Upgrade</button>
+        </div>
+      </div>
+    </header>
 
-  <section id="home" class="page">
-    <div class="hero">
-      <small>RUANG BACA DIGITAL</small>
-      <h1>Baca lebih dalam.  
-<i>Cipta lebih berani.</i></h1>
-      <p>Temukan cerita dan karya baru.</p>
-      <button onclick="page('library')">Jelajahi buku →</button>
+    <!-- ==================== NOTIFIKASI TOAST ==================== -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- ==================== KONTEN UTAMA ==================== -->
+    <main id="app-container">
+
+      <!-- 1. VIEW KATALOG BUKU -->
+      <section id="view-catalog" class="view-section active">
+        <div class="view-narrow">
+          <div class="catalog-hero">
+            <h1 class="hero-title">Ruang Membaca Tenang</h1>
+            <p class="hero-desc">Membaca tanpa distraksi banner dan pop-up. Dukung penulis lokal langsung dari setiap detik membacamu.</p>
+          </div>
+
+          <div class="filter-bar">
+            <input type="text" id="search-input" placeholder="Cari judul buku atau penulis..." class="search-input">
+            <div class="genre-tags" id="genre-container">
+              <button class="tag active" data-genre="all">Semua</button>
+              <button class="tag" data-genre="Fiksi">Fiksi</button>
+              <button class="tag" data-genre="Misteri">Misteri</button>
+              <button class="tag" data-genre="Filosofi">Filosofi</button>
+              <button class="tag" data-genre="Puisi">Puisi</button>
+            </div>
+          </div>
+
+          <div class="books-grid" id="books-list">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. VIEW DETAIL BUKU & DAFTAR BAB -->
+      <section id="view-book-detail" class="view-section">
+        <div class="view-narrow">
+          <button class="btn-text btn-back" id="btn-back-to-catalog">← Kembali ke Katalog</button>
+
+          <div class="book-detail-header" id="book-detail-content">
+            <!-- Rendered by JS -->
+          </div>
+
+          <div class="chapter-list-container">
+            <h3 class="section-heading">Daftar Bab</h3>
+            <div class="chapter-list" id="chapter-list-items">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. VIEW READER MODE (ZEN DISTRACTION-FREE) -->
+      <section id="view-reader" class="view-section reader-view">
+        <!-- Floating Reader Bar (Auto hide saat scroll) -->
+        <div id="reader-bar" class="reader-toolbar visible">
+          <button id="btn-exit-reader" class="btn-icon" title="Kembali ke Buku">←</button>
+          <div class="reader-title-info">
+            <span id="reader-book-title" class="book-mini-title">Judul Buku</span>
+            <span id="reader-chapter-title" class="chapter-mini-title">Bab 1</span>
+          </div>
+          <div class="reader-controls">
+            <div class="dropdown-wrapper">
+              <button id="btn-settings-toggle" class="btn-icon" title="Pengaturan Tampilan">Aa</button>
+              <div id="settings-panel" class="settings-popover hidden">
+                <div class="settings-group">
+                  <span class="settings-label">Tema</span>
+                  <div class="theme-picker">
+                    <button class="theme-circle theme-btn-light active" data-theme="theme-light" title="Terang"></button>
+                    <button class="theme-circle theme-btn-sepia" data-theme="theme-sepia" title="Sepia"></button>
+                    <button class="theme-circle theme-btn-dark" data-theme="theme-dark" title="Gelap"></button>
+                  </div>
+                </div>
+                <div class="settings-group">
+                  <span class="settings-label">Ukuran Huruf</span>
+                  <div class="btn-group">
+                    <button id="font-decrease" class="btn-sm">A -</button>
+                    <span id="font-size-label">18px</span>
+                    <button id="font-increase" class="btn-sm">A +</button>
+                  </div>
+                </div>
+                <div class="settings-group">
+                  <span class="settings-label">Jenis Huruf</span>
+                  <div class="font-picker">
+                    <button class="btn-sm font-opt active" data-font="font-serif">Serif</button>
+                    <button class="btn-sm font-opt" data-font="font-sans">Sans</button>
+                    <button class="btn-sm font-opt" data-font="font-mono">Mono</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button id="btn-reader-chapters" class="btn-icon" title="Daftar Bab">☰</button>
+          </div>
+        </div>
+
+        <!-- Progress bar tipis di puncak viewport -->
+        <div id="reading-progress-track" class="reading-progress-track">
+          <div id="reading-progress-bar" class="reading-progress-bar"></div>
+        </div>
+
+        <!-- Area Teks Utama -->
+        <article class="reader-content-wrap">
+          <header class="reader-chapter-header">
+            <p id="reader-header-meta" class="reader-meta">Bab 1</p>
+            <h1 id="reader-article-title" class="reader-title">Menyusuri Kabut Pagi</h1>
+          </header>
+
+          <!-- Wadah Teks Proteksi -->
+          <div id="reader-body" class="reader-body-text">
+            <!-- Isi bab dimuat via JS -->
+          </div>
+
+          <!-- Bagian Akhir Bab (Tip & Navigasi Bab) -->
+          <footer class="reader-footer-actions">
+            <div class="creator-appreciation-box">
+              <p class="appreciation-text">Suka dengan bab ini? Berikan apresiasi langsung untuk penulis:</p>
+              <div class="tip-actions">
+                <button class="btn btn-outline tip-btn" data-tip="2000">☕ Traktir Kopi (Rp 2.000)</button>
+                <button class="btn btn-outline tip-btn" data-tip="10000">📖 Dukung Buku (Rp 10.000)</button>
+              </div>
+            </div>
+
+            <div class="chapter-nav-buttons">
+              <button id="btn-prev-chapter" class="btn btn-secondary">← Bab Sebelumnya</button>
+              <button id="btn-next-chapter" class="btn btn-primary">Bab Berikutnya →</button>
+            </div>
+          </footer>
+        </article>
+      </section>
+
+      <!-- 4. VIEW STUDIO KREATOR & OCR TULISAN TANGAN -->
+      <section id="view-creator" class="view-section">
+        <div class="view-narrow">
+          <div class="creator-header">
+            <div>
+              <h1 class="hero-title">Studio Penulis & OCR</h1>
+              <p class="hero-desc">Ubah coretan naskah di buku catatan menjadi bab digital siap terbit secara instan dan 100% gratis.</p>
+            </div>
+            <div class="creator-balance-card">
+              <span class="balance-label">Total Royalti Kamu</span>
+              <span class="balance-amount" id="creator-wallet-val">Rp 48.500</span>
+              <button id="btn-withdraw" class="btn-sm btn-outline">Tarik Dana</button>
+            </div>
+          </div>
+
+          <!-- Target Buku -->
+          <div class="card p-4 mb-4">
+            <label class="form-label">Pilih Buku Target untuk Bab Baru:</label>
+            <select id="ocr-target-book" class="form-input">
+              <!-- Rendered by JS -->
+            </select>
+          </div>
+
+          <!-- Studio OCR Interaktif Side-by-Side -->
+          <div class="ocr-studio-box">
+            <div class="ocr-step-controls">
+              <div class="step-label">
+                <span class="step-num">1</span>
+                <span>Unggah Foto Naskah Tulisan Tangan</span>
+              </div>
+              <div class="upload-options">
+                <input type="file" id="ocr-file-input" accept="image/*" class="hidden">
+                <button id="btn-choose-file" class="btn btn-secondary">Pilih Foto Naskah</button>
+                <button id="btn-use-sample" class="btn btn-outline">Coba Contoh Naskah</button>
+              </div>
+            </div>
+
+            <!-- Canvas Enhancer (Client-side Preprocessing) -->
+            <div id="image-prep-bar" class="image-prep-bar hidden">
+              <div class="prep-tool">
+                <label for="slider-contrast">Kontras Gambar:</label>
+                <input type="range" id="slider-contrast" min="100" max="250" value="140">
+              </div>
+              <div class="prep-tool">
+                <label for="slider-brightness">Kecerahan:</label>
+                <input type="range" id="slider-brightness" min="80" max="180" value="110">
+              </div>
+              <button id="btn-run-ocr" class="btn btn-primary">⚡ Jalankan OCR Gemini</button>
+            </div>
+
+            <!-- Side-by-Side Area -->
+            <div class="side-by-side-container">
+              <!-- Sisi Kiri: Penampil Naskah Fisik -->
+              <div class="editor-pane pane-image">
+                <div class="pane-header">
+                  <span>Foto Naskah Asli</span>
+                  <span class="pane-hint">Perbesar untuk memeriksa</span>
+                </div>
+                <div class="image-viewport" id="image-viewport">
+                  <img id="preview-image" src="" alt="Pratinjau naskah" class="manuscript-preview hidden">
+                  <div id="upload-placeholder" class="upload-placeholder">
+                    <div class="placeholder-icon">📷</div>
+                    <p>Belum ada foto yang dipilih.</p>
+                    <small>Ambil foto tulisan tangan kertasmu dengan jelas dan tegak lurus.</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sisi Kanan: Hasil Ekstraksi & Koreksi -->
+              <div class="editor-pane pane-editor">
+                <div class="pane-header">
+                  <span>Editor Teks Digital (Hasil Ekstraksi)</span>
+                  <span id="ocr-status-badge" class="badge-status">Siap</span>
+                </div>
+                <div class="editor-wrapper">
+                  <input type="text" id="chapter-title-input" class="chapter-input-title" placeholder="Judul Bab (contoh: Bab 4: Rahasia
+  Lembah)">
+                  <textarea id="chapter-text-editor" class="chapter-textarea" placeholder="Hasil tulisan tangan yang diekstrak akan muncul
+  di sini. Kamu bisa langsung mengoreksi ejaan sebelum diterbitkan..."></textarea>
+                </div>
+                <div class="pane-footer">
+                  <span id="char-word-count">0 kata • 0 karakter</span>
+                  <button id="btn-save-chapter" class="btn btn-primary" disabled>Publikasikan Bab Ini</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. VIEW PUSAT HADIAH IKLAN (REWARD HUB) -->
+      <section id="view-rewards" class="view-section">
+        <div class="view-narrow">
+          <div class="rewards-hero">
+            <h1 class="hero-title">Pusat Akses Gratis (Bebas Biaya)</h1>
+            <p class="hero-desc">Tidak memiliki e-wallet atau rekening bank? Cukup tonton 10 video singkat untuk mengaktifkan
+  <strong>Paket Akses Bebas 24 Jam</strong> ke seluruh buku tanpa gangguan!</p>
+          </div>
+
+          <div class="reward-progress-card">
+            <div class="progress-info-row">
+              <div>
+                <span class="progress-tag">Misi Harian</span>
+                <h2 class="progress-heading">Tiket 24 Jam Bebas Baca</h2>
+              </div>
+              <div class="progress-count">
+                <span id="reward-ad-count" class="count-big">0</span>
+                <span class="count-total">/ 10 Iklan</span>
+              </div>
+            </div>
+
+            <!-- Progress Bar Meter -->
+            <div class="meter-track">
+              <div id="reward-meter-fill" class="meter-fill" style="width: 0%;"></div>
+            </div>
+
+            <div class="reward-card-actions">
+              <button id="btn-watch-ad" class="btn btn-primary btn-lg">
+                ▶ Tonton Video Iklan (15 Detik)
+              </button>
+              <p class="reward-subnote">Iklan hanya diputar di halaman misi ini, <strong>tidak akan pernah</strong> mengganggu saat kamu
+  sedang asyik membaca buku.</p>
+            </div>
+
+            <!-- Indikator Waktu Aktif jika sudah unlock -->
+            <div id="pass-active-box" class="pass-active-banner hidden">
+              <span class="pass-icon">🎉</span>
+              <div>
+                <strong>Tiket 24 Jam Kamu Sedang Aktif!</strong>
+                <p>Masa aktif berakhir dalam: <span id="pass-countdown">23:59:50</span></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-minimal">
+            <div class="faq-item">
+              <h4>Bagaimana penulis tetap dibayar jika saya menonton iklan?</h4>
+              <p>70% pendapatan dari iklan yang kamu tonton dimasukkan langsung ke kolam royalti dan dibagikan ke penulis buku berdasarkan
+  menit kamu membacanya.</p>
+            </div>
+            <div class="faq-item">
+              <h4>Kapan saya bisa mengulang misi ini lagi?</h4>
+              <p>Setelah tiket 24 jam habis, kamu dapat kembali menonton 10 iklan untuk mendapatkan tiket 24 jam berikutnya sepuasnya.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ==================== MODAL UPGRADE PREMIUM ==================== -->
+    <div id="modal-upgrade" class="modal-backdrop hidden">
+      <div class="modal-box">
+        <button class="modal-close" id="btn-close-upgrade">✕</button>
+        <div class="modal-header">
+          <span class="modal-badge">Aksara Pass</span>
+          <h2 class="modal-title">Baca Semua Buku Sepuasnya</h2>
+          <p class="modal-desc">Bebas koin, tanpa jeda bab, dan dukung kelangsungan hidup penulis independen.</p>
+        </div>
+
+        <div class="plan-options">
+          <div class="plan-card selected">
+            <div class="plan-head">
+              <span class="plan-name">Paket Langganan 1 Bulan</span>
+              <span class="plan-price">Rp 29.000</span>
+            </div>
+            <p class="plan-desc">Akses tak terbatas ke semua bab dan buku berbayar selama 30 hari penuh.</p>
+          </div>
+        </div>
+
+        <div class="qris-box">
+          <div class="qris-mockup">
+            <div class="qris-header">QRIS • PEMBAYARAN CEPAT</div>
+            <div class="qris-code">
+              <svg viewBox="0 0 100 100" width="140" height="140">
+                <rect width="100" height="100" fill="#fff"/>
+                <path d="M10 10h30v30h-30z M15 15h20v20h-20z M20 20h10v10h-10z M60 10h30v30h-30z M65 15h20v20h-20z M70 20h10v10h-10z M10
+  60h30v30h-30z M15 65h20v20h-20z M20 70h10v10h-10z M45 15h10v10h-10z M45 35h10v10h-10z M15 45h10v10h-10z M35 45h10v10h-10z M55
+  45h10v10h-10z M75 45h10v10h-10z M50 60h15v10h-15z M70 60h15v15h-15z M45 75h10v20h-10z M60 85h25v10h-25z" fill="#000"/>
+              </svg>
+            </div>
+            <span class="qris-foot">GoPay • OVO • DANA • BCA • ShopeePay</span>
+          </div>
+        </div>
+
+        <button id="btn-simulate-pay" class="btn btn-primary btn-block btn-lg">
+          Simulasikan Pembayaran Berhasil (Rp 29.000)
+        </button>
+        <div class="modal-footer-hint">
+          Atau ingin gratis? <a href="#" id="link-to-rewards">Tonton 10 iklan di sini</a>
+        </div>
+      </div>
     </div>
-    <h2>Buku pilihan</h2>
-    <div id="books" class="grid"></div>
-  </section>
 
-  <section id="library" class="page hide">
-    <h1>Koleksi buku</h1>
-    <div id="libraryBooks" class="grid"></div>
-  </section>
+    <!-- ==================== MODAL KONTEN TERKUNCI (LOCKED CHAPTER) ==================== -->
+    <div id="modal-locked" class="modal-backdrop hidden">
+      <div class="modal-box text-center">
+        <div class="lock-icon">🔒</div>
+        <h2 class="modal-title">Bab Ini Terkunci</h2>
+        <p class="modal-desc">Bab ini merupakan bagian dari naskah berbayar. Dukung penulis dengan salah satu cara mudah berikut:</p>
 
-  <section id="creator" class="page hide">
-    <h1>Studio kreator</h1>
-    <div class="card">
-      <input id="title" placeholder="Judul buku">
-      <input id="author" placeholder="Nama penulis">
-      <input id="price" type="number" placeholder="Harga buku">
-      <textarea id="desc" placeholder="Deskripsi buku"></textarea>
-      <input id="file" type="file" accept=".pdf,.epub">
-      <button onclick="upload()">Upload karya</button>
+        <div class="locked-choice-grid">
+          <div class="choice-card">
+            <h4>Paket Premium</h4>
+            <p>Baca seluruh bab di semua buku sepuasnya tanpa batas.</p>
+            <button id="btn-lock-upgrade" class="btn btn-primary btn-block">Langganan Rp 29.000</button>
+          </div>
+          <div class="choice-card">
+            <h4>Gratis (10 Iklan)</h4>
+            <p>Dapatkan akses penuh 24 jam dengan menonton misi iklan.</p>
+            <button id="btn-lock-ad" class="btn btn-secondary btn-block">Buka via Misi Iklan</button>
+          </div>
+        </div>
+        <button class="btn-text mt-3" id="btn-close-locked">Nanti Dulu</button>
+      </div>
     </div>
 
-    <h2>Scan buku menjadi PDF</h2>
-    <div class="card">
-      <input id="scan" type="file" accept="image/*" multiple>
-      <button onclick="makePDF()">Buat PDF</button>
-      <p id="scanInfo"></p>
+    <!-- ==================== MODAL SIMULATOR IKLAN (15 DETIK) ==================== -->
+    <div id="modal-ad-player" class="modal-backdrop hidden">
+      <div class="ad-video-box">
+        <div class="ad-top-bar">
+          <span class="ad-sponsor-tag">Sponsor • Google Rewarded Ad</span>
+          <span id="ad-timer" class="ad-timer-pill">15s</span>
+        </div>
+        <div class="ad-screen">
+          <div class="ad-mock-video">
+            <div class="ad-brand-logo">A</div>
+            <h3>Iklan Video Interaktif</h3>
+            <p>Mendukung ekosistem bacaan terbuka untuk Indonesia.</p>
+            <div class="ad-wave-animation">
+              <span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+        <div class="ad-bottom-bar">
+          <span class="ad-status-text" id="ad-status-text">Harap tunggu hingga selesai...</span>
+          <button id="btn-skip-ad" class="btn btn-sm btn-outline" disabled>Selesai</button>
+        </div>
+      </div>
     </div>
-  </section>
 
-  <section id="wallet" class="page hide">
-    <h1>E-wallet</h1>
+    <script src="app.js"></script>
+  </body>
+  </html>
 
-    <div class="balance">
-      <small>Saldo tersedia</small>
-      <strong id="balance"></strong>
-    </div>
-
-    <div class="card">
-      <input id="topup" type="number" placeholder="Jumlah top up">
-      <button onclick="topUp()">Tambah saldo</button>
-    </div>
-  </section>
-</main>
-
-<div id="reader" class="modal hide">
-  <article>
-    <button class="close" onclick="closeReader()">×</button>
-
-    <small id="readerType"></small>
-    <h1 id="readerTitle"></h1>
-    <p id="readerDesc"></p>
-
-    <label>Progres: <b id="progressText"></b></label>
-    <input id="progress" type="range" min="0" max="100"
-           oninput="saveProgress(this.value)">
-
-    <hr>
-
-    <p class="text">
-      Kota itu selalu punya cara untuk menyimpan suara.
-      Di antara lampu yang padam dan kedai yang belum tutup,
-      ada percakapan yang menunggu untuk diselesaikan.
-    </p>
-
-    <hr>
-
-    <h2>Ulasan pembaca</h2>
-    <select id="rating">
-      <option value="5">★★★★★ Sangat bagus</option>
-      <option value="4">★★★★☆ Bagus</option>
-      <option value="3">★★★☆☆ Cukup</option>
-      <option value="2">★★☆☆☆ Kurang</option>
-      <option value="1">★☆☆☆☆ Buruk</option>
-    </select>
-
-    <textarea id="comment" placeholder="Tulis komentar..."></textarea>
-    <button onclick="addReview()">Kirim ulasan</button>
-    <div id="reviewsList"></div>
-  </article>
-</div>
-
-<script src="app.js"></script>
-</body>
-</html>
+  ---
